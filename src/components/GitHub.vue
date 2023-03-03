@@ -1,29 +1,35 @@
 <template>
-    <div>
-        <input v-model="user" placeholder="Intruzca su nombre de usuario de GitHub" v-show="input" v-on:keydown="obtenerUsuario"/>
-        <div class="alert alert-danger" role="alert" v-show="advertencia">
-            El usuario no existe
-        </div>
-        <div class="card">
-            <img :src="user.avatar_url" class="card-img-top" alt="">
-            <div class="card-body">
-                <h6 class="card-title text-center">{{ user.login }}</h6>
-                <button class="btn btn-primary mx-auto" @click = "obtenerRepositorios">Repositorios</button>
-                <a :href="'https://github.com' + user.login" class="btn mx-auto"> URL de GitHub</a>
-            </div>
-        </div>
-        <div v-show="mostrarRepo" class="row">
-            <div v-for="r in repos" :key="r.id" class="card col-5">
-                <div class="card-body">
-                    <h6 class="card-title">{{ r.name }}</h6>
-                    <p class="card-text">{{ r.description }}</p>
-                    <a :href="r.html_url" class="btn btn-primary mx-auto">Ver Repositorio</a>
-                </div>
-            </div>
-        </div>
-        <GitHubRepos></GitHubRepos>
-    </div>
-</template>
+    <div class="container-fluid">
+     <input type="text" id="nombre" class="form-control" @keyup.enter = "obtenerUsuario">
+ 
+     <div class="alert alert-danger" role="alert" v-if="advertencia">
+       El usuario no existe
+     </div>
+ 
+     <div v-else>
+       <div class="card mx-auto" v-if="card">
+         <img :src="user.avatar_url" class="card-img-top" alt="...">
+         <div class="card-body">
+           <h5 class="card-title text-center">{{ user.login }}</h5>
+           <button class="btn btn-primary mx-auto" @click = "obtenerRepositorios">Repositorios</button>
+           <a :href="'https://github.com/' + user.login" target="_blank" class="btn btn-primary mx-auto mt-5">Url GitHub</a>
+         </div>
+       </div>
+ 
+       <div v-if="mostrarRepo"  class="row">
+         <div v-for="repo in repos" :key="repo.id" class="card col-4">
+       
+           <div class="card-body">
+             <h5 class="card-title">{{ repo.name }}</h5>
+             <p class="card-text">{{ repo.description }}</p>
+             <a :href="repo.html_url" target="_blank" class="btn btn-primary mt-2">Ver repositorio</a>
+           </div>
+         </div>
+       </div>
+     </div>
+    <GitHubRepos />
+   </div>
+ </template>
 
 <script>
 
@@ -38,7 +44,7 @@ export default {
     },
     data: function() {
         return {
-            input: true,
+            user: null,
             advertencia: false,
             mostrarRepo: false,
             card: false,
@@ -54,13 +60,12 @@ export default {
 
             // Obtener datos de autenticación de usuario para hacer peticiones
             // autenticadas a la API de GitHub
-            var userAuth = process.env.VUE_APP_USERNAME || "AuroraAF";
-            var passAuth = process.env.VUE_APP_USERTOKEN || "pass";
+            //var userAuth = process.env.VUE_APP_USERNAME || "AuroraAF";
+            //var passAuth = process.env.VUE_APP_USERTOKEN || "pass";
 
             // TODO: realizar petición fetch par obtener los datos y mostrar la información en la página
             // Ejemplo de paso de datos de autorización con fetch: https://stackoverflow.com/questions/43842793/basic-authentication-with-fetch
-            let url = 'https://api.github.com/users/{{ user }}';
-            fetch(url, {method: 'GET'})
+            fetch(`https://api.github.com/users/${document.getElementById("nombre").value}`)
             .then((response => {
                 if(response.ok) {
                     return response.json();
@@ -88,14 +93,14 @@ export default {
 
             // Obtener datos de autenticación de usuario para hacer peticiones
             // autenticadas a la API de GitHub
-            var userAuth = process.env.VUE_APP_USERNAME || "AuroraAF";
-            var passAuth = process.env.VUE_APP_USERTOKEN || "pass";
+            //var userAuth = process.env.VUE_APP_USERNAME || "AuroraAF";
+            //var passAuth = process.env.VUE_APP_USERTOKEN || "pass";
 
 
             // TODO: realizar petición fetch par obtener los datos y mostrar la información en la página
             // Ejemplo de paso de datos de autorización con fetch: https://stackoverflow.com/questions/43842793/basic-authentication-with-fetch
-            let url = 'https://api.github.com/users/{{ user }}/repos';
-            fetch(url, {method: 'GET'})
+            
+            fetch(`https://api.github.com/users/${this.user.login}/repos`,)
             .then((response => {
                 if(response.ok) {
                     return response.json();
